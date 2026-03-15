@@ -1,0 +1,1073 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Trisha's World</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400;1,500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --gold:#b8832a;
+  --gold-mid:#d4a657;
+  --gold-light:#e8c98a;
+  --gold-pale:#f6ead6;
+  --gold-glow:#fdf5e8;
+  --cream:#faf7f2;
+  --paper:#f5f0e8;
+  --ink:#1c1408;
+  --ink-soft:#2e2010;
+  --muted:#8a6e48;
+  --muted-light:#b89a70;
+  --border:rgba(184,131,42,0.18);
+  --border-strong:rgba(184,131,42,0.32);
+  --serif:'Cormorant Garamond',Georgia,serif;
+  --sans:'DM Sans','Helvetica Neue',sans-serif;
+}
+html{scroll-behavior:smooth}
+body{background:var(--cream);color:var(--ink);font-family:var(--sans);overflow-x:hidden;min-height:100vh;-webkit-font-smoothing:antialiased}
+
+/* PAGE AMBIENT BACKGROUND */
+body::after{
+  content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
+  background:
+    radial-gradient(ellipse 55% 40% at 15% 20%, rgba(212,166,87,0.07) 0%, transparent 60%),
+    radial-gradient(ellipse 45% 55% at 85% 10%, rgba(232,201,138,0.06) 0%, transparent 55%),
+    radial-gradient(ellipse 60% 35% at 50% 90%, rgba(200,160,80,0.05) 0%, transparent 60%),
+    radial-gradient(ellipse 40% 50% at 80% 70%, rgba(184,131,42,0.04) 0%, transparent 55%);
+  animation:pageDrift 18s ease-in-out infinite alternate;
+}
+@keyframes pageDrift{
+  from{opacity:.7;transform:scale(1)}
+  to{opacity:1;transform:scale(1.04)}
+}
+
+/* TEXTURE OVERLAY */
+body::before{
+  content:'';position:fixed;inset:0;
+  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.028'/%3E%3C/svg%3E");
+  pointer-events:none;z-index:0;opacity:.6;
+}
+
+/* SPLASH */
+#splash{
+  position:fixed;inset:0;z-index:999;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  transition:opacity 1.2s ease;
+  overflow:hidden;
+  background:#f0e6d0;
+}
+#splash.hide{opacity:0;pointer-events:none}
+
+/* Ambient light layers */
+.splash-ambient{
+  position:absolute;inset:0;pointer-events:none;
+  background:
+    radial-gradient(ellipse 70% 55% at 50% 40%, rgba(212,166,87,0.28) 0%, transparent 65%),
+    radial-gradient(ellipse 50% 70% at 20% 80%, rgba(232,201,138,0.18) 0%, transparent 55%),
+    radial-gradient(ellipse 40% 50% at 80% 20%, rgba(248,230,180,0.22) 0%, transparent 55%),
+    radial-gradient(ellipse 60% 40% at 50% 100%, rgba(200,160,80,0.12) 0%, transparent 60%);
+  animation:ambientPulse 7s ease-in-out infinite alternate;
+}
+@keyframes ambientPulse{
+  from{opacity:.75;transform:scale(1)}
+  to{opacity:1;transform:scale(1.03)}
+}
+
+/* Soft light sweep */
+.splash-sweep{
+  position:absolute;inset:0;pointer-events:none;
+  background:linear-gradient(115deg, transparent 30%, rgba(255,245,210,0.35) 50%, transparent 70%);
+  animation:sweepLight 5s ease-in-out infinite;
+}
+@keyframes sweepLight{
+  0%{transform:translateX(-100%)}
+  60%,100%{transform:translateX(140%)}
+}
+
+/* Floating particles */
+.splash-particles{position:absolute;inset:0;pointer-events:none;overflow:hidden}
+.particle{
+  position:absolute;border-radius:50%;
+  background:rgba(184,131,42,0.5);
+  animation:particleFloat var(--dur,8s) ease-in-out infinite;
+  animation-delay:var(--del,0s);
+}
+@keyframes particleFloat{
+  0%{transform:translateY(105vh) translateX(0) scale(0);opacity:0}
+  8%{opacity:.9}
+  85%{opacity:.3}
+  100%{transform:translateY(-8vh) translateX(var(--drift,20px)) scale(1.4);opacity:0}
+}
+
+/* PRE-LABEL */
+.splash-pre{
+  font-family:var(--sans);font-size:10px;letter-spacing:.55em;
+  text-transform:uppercase;color:rgba(140,100,40,0.65);
+  opacity:0;animation:riseIn .9s ease .4s forwards;
+  position:relative;z-index:2;
+}
+
+/* GLASS NAME */
+.splash-name-wrap{
+  position:relative;z-index:2;margin-top:10px;
+  opacity:0;animation:glassReveal 1.5s cubic-bezier(.16,1,.3,1) .9s forwards;
+  perspective:700px;
+}
+@keyframes glassReveal{
+  0%{opacity:0;transform:scale(.84) rotateX(14deg) translateY(32px)}
+  55%{opacity:1}
+  100%{opacity:1;transform:scale(1) rotateX(0deg) translateY(0)}
+}
+
+.splash-name{
+  font-family:var(--serif);
+  font-size:clamp(80px,18vw,130px);
+  font-weight:300;font-style:italic;
+  line-height:.9;letter-spacing:-.02em;
+  position:relative;display:inline-block;
+  color:transparent;
+  background:linear-gradient(
+    130deg,
+    #f8eac0 0%,
+    #e0a830 12%,
+    #fdf4d0 25%,
+    #c88020 36%,
+    #fceec0 48%,
+    #d4a040 60%,
+    #fdf8e8 72%,
+    #b87820 84%,
+    #f0d080 100%
+  );
+  background-size:220% 220%;
+  -webkit-background-clip:text;
+  background-clip:text;
+  animation:shimmerGold 5s ease-in-out infinite 2.2s;
+  filter:
+    drop-shadow(0 1px 0 rgba(160,100,0,0.25))
+    drop-shadow(0 3px 0 rgba(130,80,0,0.15))
+    drop-shadow(0 6px 20px rgba(200,146,42,0.2))
+    drop-shadow(0 0 50px rgba(240,200,100,0.2));
+}
+@keyframes shimmerGold{
+  0%{background-position:0% 50%}
+  50%{background-position:100% 50%}
+  100%{background-position:0% 50%}
+}
+
+/* Glass highlight layer */
+.splash-name-wrap::before{
+  content:'Trisha';
+  font-family:var(--serif);
+  font-size:clamp(80px,18vw,130px);
+  font-weight:300;font-style:italic;
+  line-height:.9;letter-spacing:-.02em;
+  position:absolute;top:0;left:0;
+  color:transparent;
+  background:linear-gradient(
+    155deg,
+    rgba(255,255,255,0.65) 0%,
+    rgba(255,255,255,0.18) 25%,
+    transparent 45%
+  );
+  -webkit-background-clip:text;
+  background-clip:text;
+  pointer-events:none;
+  animation:glassReveal 1.5s cubic-bezier(.16,1,.3,1) .9s forwards;
+  opacity:0;
+}
+
+/* Glow halo */
+.splash-name-wrap::after{
+  content:'';position:absolute;
+  top:50%;left:50%;
+  transform:translate(-50%,-50%);
+  width:130%;height:130%;
+  background:radial-gradient(ellipse 70% 55% at 50% 50%, rgba(212,166,87,0.22) 0%, transparent 70%);
+  pointer-events:none;
+  animation:haloBreath 4s ease-in-out infinite 2.2s;
+}
+@keyframes haloBreath{
+  0%,100%{transform:translate(-50%,-50%) scale(1);opacity:.6}
+  50%{transform:translate(-50%,-50%) scale(1.1);opacity:1}
+}
+
+/* RULE */
+.splash-rule{
+  width:0;height:.5px;
+  background:linear-gradient(90deg,transparent,rgba(184,131,42,0.6),transparent);
+  opacity:0;animation:ruleExpand 1s ease 2.1s forwards;
+  margin-top:28px;position:relative;z-index:2;
+}
+@keyframes ruleExpand{from{width:0;opacity:0}to{width:180px;opacity:1}}
+
+/* TAGLINE */
+.splash-tagline{
+  font-family:var(--serif);font-size:14px;font-weight:300;font-style:italic;
+  color:rgba(130,90,30,0.7);opacity:0;animation:riseIn .9s ease 2.5s forwards;
+  margin-top:20px;letter-spacing:.06em;position:relative;z-index:2;
+}
+
+/* ENTER BUTTON */
+.splash-enter{
+  margin-top:40px;opacity:0;animation:riseIn .9s ease 3s forwards;
+  background:rgba(255,248,230,0.4);
+  border:.5px solid rgba(184,131,42,0.35);
+  border-radius:2px;
+  font-family:var(--sans);font-size:10px;letter-spacing:.28em;
+  text-transform:uppercase;color:rgba(160,110,30,0.9);padding:11px 32px;
+  cursor:pointer;transition:all .4s ease;
+  position:relative;z-index:2;
+  backdrop-filter:blur(6px);
+}
+.splash-enter::before{
+  content:'';position:absolute;inset:0;
+  background:linear-gradient(135deg,rgba(255,245,200,0.2),transparent);
+  border-radius:2px;transition:opacity .4s;opacity:0;
+}
+.splash-enter:hover{
+  background:rgba(255,245,215,0.7);
+  border-color:rgba(184,131,42,0.6);
+  color:rgba(140,90,10,1);
+  letter-spacing:.34em;
+  box-shadow:0 4px 24px rgba(200,146,42,0.14),inset 0 0 16px rgba(200,146,42,0.06);
+}
+.splash-enter:hover::before{opacity:1}
+
+@keyframes riseIn{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
+
+/* MAIN */
+#main{opacity:0;transition:opacity .9s ease;position:relative;z-index:1}
+
+/* HERO */
+.hero{
+  text-align:center;padding:72px 24px 52px;
+  border-bottom:.5px solid var(--border);
+  position:relative;overflow:hidden;
+}
+.hero-bg{
+  position:absolute;inset:0;pointer-events:none;
+  background:
+    radial-gradient(ellipse 75% 60% at 50% -5%, rgba(232,201,138,0.28) 0%, transparent 65%),
+    radial-gradient(ellipse 40% 30% at 20% 80%, rgba(212,166,87,0.08) 0%, transparent 50%),
+    radial-gradient(ellipse 35% 40% at 80% 80%, rgba(200,160,80,0.07) 0%, transparent 50%);
+  animation:heroBgBreath 10s ease-in-out infinite alternate;
+}
+@keyframes heroBgBreath{
+  from{opacity:.8;transform:scale(1)}
+  to{opacity:1;transform:scale(1.02)}
+}
+/* Shimmer line across hero */
+.hero-shimmer{
+  position:absolute;top:0;left:-100%;width:60%;height:100%;
+  background:linear-gradient(105deg,transparent 30%,rgba(255,245,210,0.18) 50%,transparent 70%);
+  animation:heroSweep 8s ease-in-out infinite 1.5s;
+  pointer-events:none;
+}
+@keyframes heroSweep{
+  0%{left:-60%}
+  40%,100%{left:160%}
+}
+.hero-eyebrow{
+  font-family:var(--sans);font-size:10px;letter-spacing:.48em;
+  text-transform:uppercase;color:var(--muted-light);
+  display:flex;align-items:center;justify-content:center;gap:16px;margin-bottom:20px;
+  opacity:0;animation:riseIn .8s ease .1s forwards;
+}
+.hero-eyebrow::before,.hero-eyebrow::after{
+  content:'';display:block;width:36px;height:.5px;
+  background:linear-gradient(90deg,transparent,var(--gold-light));
+}
+.hero-eyebrow::after{
+  background:linear-gradient(90deg,var(--gold-light),transparent);
+}
+.hero h1{
+  font-family:var(--serif);font-size:clamp(42px,9vw,72px);
+  font-weight:300;color:var(--ink);line-height:1;letter-spacing:-.01em;
+  opacity:0;animation:riseIn .9s ease .25s forwards;
+}
+.hero h1 em{
+  font-style:italic;color:var(--gold);
+  background:linear-gradient(135deg,#c8922a,#e8c882,#b87818);
+  -webkit-background-clip:text;background-clip:text;color:transparent;
+}
+.hero-desc{
+  font-family:var(--serif);font-size:16px;font-style:italic;font-weight:300;
+  color:var(--muted);margin-top:14px;line-height:1.6;letter-spacing:.02em;
+  opacity:0;animation:riseIn .9s ease .45s forwards;
+}
+
+/* NAV */
+.nav-wrap{
+  position:sticky;top:0;z-index:100;
+  background:rgba(250,247,242,0.95);backdrop-filter:blur(16px);
+  -webkit-backdrop-filter:blur(16px);
+  border-bottom:.5px solid var(--border);
+}
+.nav{display:flex;justify-content:center;overflow-x:auto;scrollbar-width:none}
+.nav::-webkit-scrollbar{display:none}
+.nav-btn{
+  padding:15px 20px;border:none;background:transparent;
+  font-family:var(--sans);font-size:11px;font-weight:400;
+  letter-spacing:.15em;text-transform:uppercase;
+  color:var(--muted);cursor:pointer;transition:color .2s;
+  white-space:nowrap;position:relative;
+}
+.nav-btn::after{
+  content:'';position:absolute;bottom:0;left:20px;right:20px;
+  height:1px;background:var(--gold);
+  transform:scaleX(0);transition:transform .3s ease;transform-origin:center;
+}
+.nav-btn.active{color:var(--ink)}
+.nav-btn.active::after,.nav-btn:hover::after{transform:scaleX(1)}
+.nav-btn:hover{color:var(--ink-soft)}
+
+/* PANELS */
+.panel{display:none;animation:panelIn .5s cubic-bezier(.16,1,.3,1)}
+.panel.active{display:block}
+@keyframes panelIn{
+  from{opacity:0;transform:translateY(16px)}
+  to{opacity:1;transform:translateY(0)}
+}
+.panel-inner{max-width:780px;margin:0 auto;padding:44px 24px 80px}
+.section-heading{
+  font-family:var(--serif);font-size:36px;font-weight:300;
+  color:var(--ink);margin-bottom:6px;line-height:1;
+  opacity:0;animation:riseIn .7s ease .05s forwards;
+}
+.section-caption{
+  font-family:var(--serif);font-size:14px;font-style:italic;
+  color:var(--muted);margin-bottom:36px;letter-spacing:.02em;
+  opacity:0;animation:riseIn .7s ease .15s forwards;
+}
+
+/* MOOD TABS */
+.mood-row{display:flex;gap:0;border:.5px solid var(--border);border-radius:4px;overflow:hidden;margin-bottom:32px;flex-wrap:wrap}
+.mood-tab{
+  flex:1;min-width:80px;padding:11px 8px;border:none;background:transparent;
+  font-family:var(--sans);font-size:10px;letter-spacing:.12em;text-transform:uppercase;
+  color:var(--muted);cursor:pointer;transition:all .2s;
+  border-right:.5px solid var(--border);text-align:center;
+}
+.mood-tab:last-child{border-right:none}
+.mood-tab.active{background:var(--gold-glow);color:var(--ink-soft)}
+.mood-tab:hover:not(.active){background:var(--paper)}
+
+/* MOVIE GRID */
+.movie-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(168px,1fr));gap:1px;border:.5px solid var(--border);background:var(--border)}
+.movie-card{
+  background:var(--cream);padding:20px 18px;cursor:pointer;
+  transition:background .25s ease, transform .25s cubic-bezier(.16,1,.3,1);
+  position:relative;overflow:hidden;
+}
+.movie-card::before{
+  content:'';position:absolute;top:0;left:-100%;width:50%;height:100%;
+  background:linear-gradient(105deg,transparent,rgba(255,248,220,0.35),transparent);
+  transition:left .5s ease;pointer-events:none;
+}
+.movie-card:hover::before{left:150%}
+.movie-card:hover{background:var(--gold-glow)}
+.movie-card::after{content:'';position:absolute;bottom:0;left:18px;right:18px;height:.5px;background:var(--border)}
+.movie-num{
+  font-family:var(--serif);font-size:11px;font-style:italic;
+  color:var(--muted-light);margin-bottom:8px;display:block;
+}
+.movie-title{
+  font-family:var(--serif);font-size:17px;font-weight:400;
+  color:var(--ink);line-height:1.25;margin-bottom:5px;
+  transition:color .2s ease;
+}
+.movie-card:hover .movie-title{color:var(--gold)}
+.movie-year{font-family:var(--sans);font-size:11px;color:var(--muted-light)}
+.movie-tag{
+  display:inline-block;margin-top:10px;font-size:10px;
+  letter-spacing:.08em;text-transform:uppercase;color:var(--gold);
+  border-bottom:.5px solid var(--gold-light);padding-bottom:1px;
+  transition:border-color .2s;
+}
+
+/* BOLLYWOOD SECTION LABEL */
+.sub-heading{
+  font-family:var(--serif);font-size:24px;font-weight:300;font-style:italic;
+  color:var(--ink);margin:48px 0 18px;padding-bottom:12px;
+  border-bottom:.5px solid var(--border);
+}
+.sub-heading span{
+  font-style:normal;font-size:11px;font-family:var(--sans);
+  letter-spacing:.12em;text-transform:uppercase;color:var(--muted-light);
+  margin-left:12px;vertical-align:middle;
+}
+
+/* FEATURED CARD */
+.featured{
+  border:.5px solid var(--border-strong);padding:28px;margin-bottom:44px;
+  cursor:pointer;transition:all .3s ease;position:relative;overflow:hidden;
+  background:linear-gradient(135deg,var(--gold-glow) 0%,rgba(253,245,232,0.6) 50%,var(--cream) 100%);
+}
+.featured::before{
+  content:'';position:absolute;top:0;left:-100%;width:60%;height:100%;
+  background:linear-gradient(105deg,transparent,rgba(255,250,220,0.5),transparent);
+  transition:left .7s ease;pointer-events:none;
+}
+.featured:hover::before{left:160%}
+.featured:hover{
+  background:linear-gradient(135deg,var(--gold-pale) 0%,var(--gold-glow) 60%,var(--paper) 100%);
+  box-shadow:0 8px 32px rgba(200,146,42,0.1);
+}
+.featured-label{
+  font-family:var(--sans);font-size:10px;letter-spacing:.3em;
+  text-transform:uppercase;color:var(--gold);margin-bottom:10px;
+}
+.featured-title{
+  font-family:var(--serif);font-size:30px;font-weight:300;
+  color:var(--ink);margin-bottom:8px;transition:color .25s;
+}
+.featured:hover .featured-title{color:var(--gold)}
+.featured-body{
+  font-family:var(--serif);font-size:15px;font-style:italic;
+  color:var(--muted);line-height:1.7;
+}
+.featured-tags{display:flex;gap:8px;flex-wrap:wrap;margin-top:16px}
+.featured-tag{
+  font-size:10px;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--muted);border:.5px solid var(--border-strong);
+  padding:3px 10px;transition:all .2s;
+}
+.featured:hover .featured-tag{border-color:var(--gold-light);color:var(--gold)}
+
+/* ANIME */
+.anime-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(168px,1fr));gap:1px;border:.5px solid var(--border);background:var(--border)}
+.anime-card{
+  background:var(--cream);padding:20px 18px;cursor:pointer;
+  transition:background .25s ease;position:relative;overflow:hidden;
+}
+.anime-card::before{
+  content:'';position:absolute;top:0;left:-100%;width:50%;height:100%;
+  background:linear-gradient(105deg,transparent,rgba(255,248,220,0.35),transparent);
+  transition:left .5s ease;pointer-events:none;
+}
+.anime-card:hover::before{left:150%}
+.anime-card:hover{background:var(--gold-glow)}
+.anime-watched{
+  display:inline-block;font-size:9px;letter-spacing:.12em;
+  text-transform:uppercase;color:#5a7a5a;border:.5px solid #a0c0a0;
+  padding:2px 7px;margin-bottom:8px;
+}
+.anime-title{font-family:var(--serif);font-size:16px;font-weight:400;color:var(--ink);line-height:1.25;margin-bottom:4px;transition:color .2s}
+.anime-card:hover .anime-title{color:var(--gold)}
+.anime-meta{font-family:var(--sans);font-size:11px;color:var(--muted-light);margin-bottom:8px}
+.anime-tag{font-size:10px;letter-spacing:.07em;text-transform:uppercase;color:var(--gold)}
+
+/* MUSIC */
+.track-section-label{
+  font-family:var(--sans);font-size:10px;letter-spacing:.3em;
+  text-transform:uppercase;color:var(--muted-light);
+  margin:40px 0 16px;padding-bottom:10px;border-bottom:.5px solid var(--border);
+}
+.track-section-label:first-of-type{margin-top:0}
+.track-list{display:flex;flex-direction:column}
+.track-row{
+  display:flex;align-items:center;gap:16px;
+  padding:14px 16px;border-bottom:.5px solid var(--border);
+  cursor:pointer;transition:background .18s;
+}
+.track-row:hover,.track-row.playing{background:var(--gold-glow)}
+.album-art{
+  width:44px;height:44px;flex-shrink:0;border:.5px solid var(--border);
+  overflow:hidden;position:relative;background:var(--paper);
+}
+.album-art svg{width:100%;height:100%}
+.track-num{
+  font-family:var(--serif);font-size:12px;font-style:italic;
+  color:var(--muted-light);width:20px;text-align:right;flex-shrink:0;
+}
+.track-info{flex:1;min-width:0}
+.track-name{
+  font-family:var(--serif);font-size:16px;font-weight:400;
+  color:var(--ink);line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+}
+.track-artist{font-family:var(--sans);font-size:11px;color:var(--muted-light);margin-top:3px}
+.track-vibe{
+  font-size:10px;letter-spacing:.08em;text-transform:uppercase;
+  color:var(--muted-light);flex-shrink:0;
+}
+.now-strip{
+  display:none;align-items:center;gap:16px;
+  padding:12px 16px;background:var(--gold-glow);
+  border-bottom:.5px solid var(--border-strong);margin-bottom:0;
+}
+.now-strip.show{display:flex}
+.now-label{font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--gold);margin-bottom:3px}
+.now-title{font-family:var(--serif);font-size:15px;color:var(--ink)}
+.prog{flex:1;height:1px;background:var(--gold-pale);position:relative}
+.prog-bar{height:100%;background:var(--gold);width:0;transition:width 22s linear}
+
+/* OVERLAY */
+.overlay-bg{
+  position:fixed;inset:0;background:rgba(28,20,8,.7);
+  backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);
+  z-index:800;display:none;align-items:center;justify-content:center;padding:24px;
+}
+.overlay-bg.open{display:flex}
+.overlay{
+  background:var(--cream);max-width:460px;width:100%;
+  padding:36px;position:relative;
+  animation:overlayIn .3s cubic-bezier(.22,1,.36,1);
+  border:.5px solid var(--border-strong);
+}
+@keyframes overlayIn{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+.overlay-close{
+  position:absolute;top:18px;right:18px;background:none;border:none;
+  font-family:var(--sans);font-size:13px;color:var(--muted);cursor:pointer;
+  letter-spacing:.1em;padding:4px;
+}
+.overlay-close:hover{color:var(--ink)}
+.overlay-label{
+  font-size:10px;letter-spacing:.3em;text-transform:uppercase;
+  color:var(--gold);margin-bottom:12px;
+}
+.overlay-title{font-family:var(--serif);font-size:30px;font-weight:300;color:var(--ink);line-height:1.1;margin-bottom:6px}
+.overlay-sub{font-size:11px;color:var(--muted-light);letter-spacing:.06em;margin-bottom:18px}
+.overlay-desc{font-family:var(--serif);font-size:15px;font-style:italic;color:var(--muted);line-height:1.8}
+.overlay-tags{display:flex;gap:8px;flex-wrap:wrap;margin-top:20px}
+.overlay-tag{
+  font-size:10px;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--muted);border:.5px solid var(--border-strong);padding:3px 9px;
+}
+
+/* GUDDU BUTTON */
+.guddu-wrap{position:relative;display:inline-block}
+.guddu-btn{
+  background:none;border:.5px solid var(--border-strong);
+  font-family:var(--serif);font-size:14px;font-style:italic;
+  color:var(--muted);padding:8px 22px;cursor:default;
+  letter-spacing:.04em;transition:all .4s ease;
+  border-radius:2px;
+}
+.guddu-wrap:hover .guddu-btn{
+  color:transparent;border-color:transparent;
+}
+.guddu-hover{
+  position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+  font-family:var(--serif);font-size:14px;font-style:italic;
+  color:var(--gold);opacity:0;transition:opacity .4s ease;
+  white-space:nowrap;pointer-events:none;letter-spacing:.04em;
+}
+.guddu-wrap:hover .guddu-hover{opacity:1}
+
+@media(max-width:560px){
+  .mood-tab{min-width:60px;font-size:9px}
+  .panel-inner{padding:32px 16px 60px}
+  .featured{padding:20px}
+  .overlay{padding:24px}
+}
+</style>
+</head>
+<body>
+
+<!-- SPLASH -->
+<div id="splash">
+  <div class="splash-ambient"></div>
+  <div class="splash-sweep"></div>
+  <div class="splash-particles" id="particles"></div>
+  <div class="splash-pre">made for</div>
+  <div class="splash-name-wrap">
+    <span class="splash-name">Trisha</span>
+  </div>
+  <div class="splash-rule"></div>
+  <div class="splash-tagline">a quiet corner, curated with thought</div>
+  <button class="splash-enter" onclick="enterSite()">Enter</button>
+</div>
+
+<!-- MAIN -->
+<div id="main">
+
+  <header class="hero">
+    <div class="hero-bg"></div>
+    <div class="hero-shimmer"></div>
+    <div class="hero-eyebrow">a personal collection</div>
+    <h1><em>Trisha's</em> World</h1>
+    <p class="hero-desc">Films that stay with you. Songs that understand.</p>
+  </header>
+
+  <div class="nav-wrap">
+    <nav class="nav">
+      <button class="nav-btn active" onclick="show('mood',this)">By Mood</button>
+      <button class="nav-btn" onclick="show('bollywood',this)">Bollywood</button>
+      <button class="nav-btn" onclick="show('anime',this)">Anime</button>
+      <button class="nav-btn" onclick="show('music',this)">Music</button>
+      <button class="nav-btn" onclick="show('shows',this)">Shows</button>
+    </nav>
+  </div>
+
+  <!-- MOOD -->
+  <div id="panel-mood" class="panel active">
+    <div class="panel-inner">
+      <h2 class="section-heading">What are you in the mood for?</h2>
+      <p class="section-caption">Some films know exactly how you feel.</p>
+      <div class="mood-row" id="mood-row"></div>
+      <div class="movie-grid" id="mood-grid"></div>
+    </div>
+  </div>
+
+  <!-- BOLLYWOOD -->
+  <div id="panel-bollywood" class="panel">
+    <div class="panel-inner">
+      <h2 class="section-heading">Bollywood & Beyond</h2>
+      <p class="section-caption">The ones worth returning to.</p>
+
+      <div class="featured" id="feat-card">
+        <div class="featured-label">Her all-time favourite</div>
+        <div class="featured-title">The Proposal</div>
+        <div class="featured-body">Ryan Reynolds at his most disarming. A fake engagement that slowly, quietly becomes real. The kind of film you rewatch not for the plot, but for how it makes you feel.</div>
+        <div class="featured-tags">
+          <span class="featured-tag">Ryan Reynolds</span>
+          <span class="featured-tag">Rom-com</span>
+          <span class="featured-tag">Feel-good</span>
+        </div>
+      </div>
+
+      <div id="bwood-cont"></div>
+    </div>
+  </div>
+
+  <!-- ANIME -->
+  <div id="panel-anime" class="panel">
+    <div class="panel-inner">
+      <h2 class="section-heading">Anime</h2>
+      <p class="section-caption">Already loved, and still left to discover.</p>
+      <div id="anime-cont"></div>
+    </div>
+  </div>
+
+  <!-- MUSIC -->
+  <div id="panel-music" class="panel">
+    <div class="panel-inner">
+      <h2 class="section-heading">The Playlist</h2>
+      <p class="section-caption">Indie folk and quiet feelings.</p>
+      <div class="now-strip" id="now-strip">
+        <div style="flex:1">
+          <div class="now-label">Now playing</div>
+          <div class="now-title" id="now-title">—</div>
+        </div>
+        <div class="prog"><div class="prog-bar" id="prog-bar"></div></div>
+      </div>
+      <div id="music-cont"></div>
+    </div>
+  </div>
+
+  <!-- SHOWS -->
+  <div id="panel-shows" class="panel">
+    <div class="panel-inner">
+      <h2 class="section-heading">Shows</h2>
+      <p class="section-caption">The ones you return to between everything else.</p>
+
+      <div class="featured" id="suits-card">
+        <div class="featured-label">The highlight — start here</div>
+        <div class="featured-title">Suits</div>
+        <div class="featured-body">A college dropout pretending to be a Harvard lawyer, and the shark of a mentor who lets him. What starts as a procedural slowly becomes a study in loyalty, ambition, and the cost of reinventing yourself. Harvey Specter is one of television's great characters — not because he wins, but because of how much it costs him to.</div>
+        <div class="featured-tags">
+          <span class="featured-tag">Legal drama</span>
+          <span class="featured-tag">9 seasons</span>
+          <span class="featured-tag">Gabriel Macht</span>
+          <span class="featured-tag">Meghan Markle</span>
+        </div>
+      </div>
+
+      <div id="shows-cont"></div>
+
+      <div style="text-align:center;margin-top:56px;padding-top:32px;border-top:.5px solid var(--border)">
+        <div class="guddu-wrap">
+          <button class="guddu-btn" id="guddu-btn">Guddu</button>
+          <span class="guddu-hover">Love Actually...?</span>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- OVERLAY -->
+<div class="overlay-bg" id="overlay" onclick="maybeClose(event)">
+  <div class="overlay" id="overlay-card">
+    <button class="overlay-close" onclick="closeOverlay()">Close</button>
+    <div class="overlay-label" id="ov-label"></div>
+    <div class="overlay-title" id="ov-title"></div>
+    <div class="overlay-sub" id="ov-sub"></div>
+    <div class="overlay-desc" id="ov-desc"></div>
+    <div class="overlay-tags" id="ov-tags"></div>
+  </div>
+</div>
+
+<script>
+// ── ALBUM ART GENERATOR (SVG procedural art per song) ──
+function albumArt(seed, scheme){
+  const s=[scheme||'amber'];
+  const schemes={
+    amber:['#e8c98a','#b8832a','#fdf5e8','#8a6e48'],
+    rose:['#e8b4b8','#a85060','#fdf0f2','#7a4050'],
+    sage:['#b4c8b0','#5a7a58','#f0f5ee','#486048'],
+    slate:['#b0b8c8','#506080','#eef0f5','#405060'],
+    earth:['#c8b098','#7a5830','#f5ede0','#604838'],
+    dusk:['#b8a8d0','#6850a0','#f0eef8','#504070'],
+  };
+  const c=schemes[scheme]||schemes.amber;
+  const r=(n,min,max)=>min+((n*2654435761)%1000)/1000*(max-min);
+  let shapes='';
+  for(let i=0;i<6;i++){
+    const x=r(seed+i*7,10,90),y=r(seed+i*11,10,90),rad=r(seed+i*13,8,28);
+    shapes+=`<circle cx="${x}" cy="${y}" r="${rad}" fill="${c[i%2]}" opacity="${0.3+r(seed+i,0,0.4)}"/>`;
+  }
+  for(let i=0;i<3;i++){
+    const x1=r(seed+i*17,5,95),y1=r(seed+i*19,5,95),x2=r(seed+i*23,5,95),y2=r(seed+i*29,5,95);
+    shapes+=`<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${c[1]}" stroke-width="${r(seed+i,0.5,2)}" opacity="0.4"/>`;
+  }
+  return `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><rect width="100" height="100" fill="${c[2]}"/>${shapes}<rect width="100" height="100" fill="${c[0]}" opacity="0.08"/></svg>`;
+}
+
+// ── DATA ──
+const moods=[
+  {id:'romantic',label:'Romantic'},
+  {id:'cozy',label:'Cozy Night'},
+  {id:'laugh',label:'Laugh Hard'},
+  {id:'cry',label:'Good Cry'},
+  {id:'thriller',label:'Thriller'},
+  {id:'adventure',label:'Adventure'},
+];
+
+const moodData={
+  romantic:[
+    {t:'Jab We Met',y:'2007',d:'Geet\'s relentless optimism and Aditya\'s quiet sadness find each other on a train. Imtiaz Ali at his most alive — a love story that never condescends to be simple.',tags:['Shahid Kapoor','Kareena','Imtiaz Ali']},
+    {t:'Yeh Jawaani Hai Deewani',y:'2013',d:'The one about the boy who keeps running and the girl who stays. It lands differently the older you get.',tags:['Ranbir','Deepika','Nostalgic']},
+    {t:'Kal Ho Naa Ho',y:'2003',d:'A man who gives love away like he has no use for it himself. Quietly devastating, even when it\'s dancing.',tags:['SRK','Preity','Heartbreaking']},
+    {t:'Veer-Zaara',y:'2004',d:'Two people separated by borders who never stop belonging to each other. Yash Chopra\'s most tender film.',tags:['SRK','Preity','Timeless']},
+  ],
+  cozy:[
+    {t:'Dear Zindagi',y:'2016',d:'A young woman learns that asking for help isn\'t weakness. Alia Bhatt is radiant. SRK is restrained in the best way.',tags:['Alia Bhatt','SRK','Gentle']},
+    {t:'Wake Up Sid',y:'2009',d:'A boy who drifts until he doesn\'t. Warm without being soft, honest without being cruel.',tags:['Ranbir','Konkona','Mumbai']},
+    {t:'Karwaan',y:'2018',d:'Three very different people, a road they didn\'t plan, and the kind of conversations that only happen in cars.',tags:['Irrfan','Dulquer','Road trip']},
+    {t:'Queen',y:'2014',d:'A girl goes on her honeymoon alone. Comes back someone else entirely — and it\'s a beautiful thing to watch.',tags:['Kangana','Solo','Freedom']},
+  ],
+  laugh:[
+    {t:'Hera Pheri',y:'2000',d:'Three incompetent men, one phone call, and chaos that never stops escalating. Babu Rao is eternal.',tags:['Akshay','Paresh','Cult']},
+    {t:'Andaz Apna Apna',y:'1994',d:'The most quotable film in Bollywood history. Aamir and Salman at their most absurd — a film that only got funnier with age.',tags:['Aamir','Salman','Cult classic']},
+    {t:'3 Idiots',y:'2009',d:'It starts as a comedy about engineering college and ends as something much more sincere. Aamir Khan\'s warmth carries every scene.',tags:['Aamir Khan','Comedy','Heart']},
+    {t:'Welcome',y:'2007',d:'Nana Patekar and Anil Kapoor as gangsters trying to get their sister married. Ridiculous in the best way.',tags:['Nana Patekar','Anil Kapoor','Chaos']},
+  ],
+  cry:[
+    {t:'Taare Zameen Par',y:'2007',d:'A boy who sees the world differently, in a world that can\'t see him at all. Aamir Khan directed this quietly and it breaks you.',tags:['Aamir Khan','Childhood','Tender']},
+    {t:'Rockstar',y:'2011',d:'The sound of someone losing themselves to become something. Ranbir Kapoor gives everything, and AR Rahman takes it further.',tags:['Ranbir','AR Rahman','Raw']},
+    {t:'Masaan',y:'2015',d:'Two separate grief stories in Varanasi that find each other only at the end. One of the most quietly devastating Indian films made.',tags:['Richa Chadha','Vicky','Neeraj Ghaywan']},
+    {t:'Kapoor & Sons',y:'2016',d:'A family reunion that unravels everything everyone was pretending. Fawad Khan and Sidharth Malhotra are both heartbreaking.',tags:['Fawad Khan','Family','Honest']},
+  ],
+  thriller:[
+    {t:'Andhadhun',y:'2018',d:'A blind pianist who may or may not be blind witnesses a murder. Sriram Raghavan\'s tightest, most playful thriller.',tags:['Ayushmann','Tabu','Twist after twist']},
+    {t:'Drishyam',y:'2015',d:'A father. A lie. A wall that holds. Ajay Devgn is measured and controlled in a way that makes every scene feel like pressure building.',tags:['Ajay Devgn','Tabu','Tense']},
+    {t:'Talaash',y:'2012',d:'A detective haunted by loss, a case that keeps shifting, and an ending that reframes everything. Aamir Khan at his most interior.',tags:['Aamir Khan','Kareena','Atmospheric']},
+    {t:'Kahaani',y:'2012',d:'A pregnant woman alone in Kolkata, looking for a man who doesn\'t seem to exist. Vidya Balan carries this film entirely.',tags:['Vidya Balan','Kolkata','Smart']},
+  ],
+  adventure:[
+    {t:'Zindagi Na Milegi Dobara',y:'2011',d:'Three friends. Spain. The kind of trip that makes you examine everything you\'ve been running from. Zoya Akhtar understands male friendship in a way few directors do.',tags:['Hrithik','Farhan','Zoya Akhtar']},
+    {t:'Dil Chahta Hai',y:'2001',d:'The film that redefined how Bollywood wrote about being young. It still feels honest — even now, even after everything.',tags:['Aamir','Saif','Farhan Akhtar']},
+    {t:'Highway',y:'2014',d:'A woman kidnapped on the eve of her wedding who realises, slowly, that she feels freer than she ever has. Alia Bhatt\'s breakthrough.',tags:['Alia Bhatt','Randeep','Imtiaz Ali']},
+    {t:'Tamasha',y:'2015',d:'A man who has performed a version of himself for so long he\'s forgotten who he actually is. Imtiaz Ali\'s most personal film.',tags:['Ranbir','Deepika','Layered']},
+  ],
+};
+
+const bwoodSections=[
+  {label:'Shah Rukh Khan',items:[
+    {t:'Dilwale Dulhania Le Jayenge',y:'1995',d:'The film against which all Bollywood romances are measured. Raj running after the train is cinema\'s most iconic image of second chances.',tags:['Classic','Romance','Iconic']},
+    {t:'Kal Ho Naa Ho',y:'2003',d:'SRK plays a man made entirely of warmth who can\'t keep any of it for himself. Still devastating.',tags:['Emotional','New York','Tissue warning']},
+    {t:'Rab Ne Bana Di Jodi',y:'2008',d:'A shy, quiet man tries to win his wife\'s heart — disguised as someone else. Surprisingly sincere.',tags:['SRK','Anushka','Sincere']},
+    {t:'My Name Is Khan',y:'2010',d:'An autistic man crosses America to say one thing to the President. Slow, earnest, and quietly powerful.',tags:['Emotional','Kajol','Powerful']},
+    {t:'Chennai Express',y:'2013',d:'Not the deepest SRK film, but one of the most entertaining. Deepika is delightful throughout.',tags:['Comedy','Deepika','Light']},
+  ]},
+  {label:'Alia Bhatt',items:[
+    {t:'Dear Zindagi',y:'2016',d:'A film about therapy that doesn\'t sensationalise it. Alia\'s performance is natural to the point of feeling unscripted.',tags:['SRK','Gentle','Honest']},
+    {t:'Highway',y:'2014',d:'The film that made people realise Alia Bhatt was the real thing. Raw, physical, and deeply felt.',tags:['Randeep','Imtiaz Ali','Breakthrough']},
+    {t:'Gangubai Kathiawadi',y:'2022',d:'A girl sold into Kamathipura who becomes its most fierce protector. Bhansali\'s grandeur finally met its match.',tags:['Bhansali','Commanding','True story']},
+    {t:'Raazi',y:'2018',d:'A young bride sent into enemy territory to spy. Alia is terrifyingly good in her stillness.',tags:['Spy','Meghna Gulzar','Thriller']},
+    {t:'Humpty Sharma Ki Dulhania',y:'2014',d:'DDLJ reimagined with energy and irreverence. Alia steals every scene she\'s in.',tags:['Varun','Rom-com','Fun']},
+  ]},
+  {label:'Modern Funny Films',items:[
+    {t:'Stree',y:'2018',d:'A small town haunted by a ghost who takes men. Horror-comedy that is actually both — and also surprisingly moving.',tags:['Rajkummar','Shraddha','Genre-blend']},
+    {t:'Good Newwz',y:'2019',d:'Two couples, a mix-up at a fertility clinic, and the comedy that follows. Akshay Kumar at his most likeable.',tags:['Akshay','Kareena','Light']},
+    {t:'Luka Chuppi',y:'2019',d:'Live-in relationships in a conservative town. Kartik and Kriti have easy chemistry throughout.',tags:['Kartik','Kriti','Relatable']},
+    {t:'Bareilly Ki Barfi',y:'2017',d:'A girl finds her name in a novel and goes looking for the author. Kriti Sanon is irresistible in this.',tags:['Kriti Sanon','Rajkummar','Charming']},
+    {t:'Pati Patni Aur Woh',y:'2019',d:'A remake that manages to be its own thing. Bhumi Pednekar quietly outshines everyone.',tags:['Kartik','Bhumi','Comedy']},
+  ]},
+  {label:'Soft & Love-filled — South Indian',items:[
+    {t:'Sita Ramam',y:'2022',d:'A war-time love story built around letters. Dulquer Salmaan and Mrunal Thakur are luminous. One of the most beautiful Indian films in years.',tags:['Dulquer','Telugu','Gorgeous']},
+    {t:'96',y:'2018',d:'Two people who loved each other and didn\'t end up together, meeting again. Tamil cinema\'s quietest, most aching film.',tags:['Vijay Sethupathi','Tamil','Tender']},
+    {t:'Hi Nanna',y:'2023',d:'A father\'s devotion to his daughter, and the mother she never knew. Nani carries it with warmth and restraint.',tags:['Nani','Telugu','Emotional']},
+    {t:'Oh My Kadavule',y:'2020',d:'A man gets a chance to redo a past decision — and learns what he actually wants. Tamil rom-com with real feeling.',tags:['Tamil','Ashok Selvan','Honest']},
+    {t:'Premam',y:'2015',d:'Three chapters of a man\'s life through the loves he carries. Malayalam cinema at its most beautifully melancholy.',tags:['Nivin Pauly','Malayalam','Beautiful']},
+  ]},
+];
+
+const animeSections=[
+  {label:'Already watched — and loved',items:[
+    {t:'Re:Zero',m:'2016 · Dark isekai',d:'A boy who keeps dying and reliving. The emotional violence of it is the point — and it never stops being compelling.',tags:['Isekai','Dark','Emotional'],w:true},
+    {t:'Erased',m:'2016 · Thriller',d:'A man sent back to childhood to stop a murder. Twelve episodes that feel like one held breath.',tags:['Thriller','Short','Gripping'],w:true},
+    {t:'Death Note',m:'2006 · Psychological',d:'Light Yagami versus L. The most precise cat-and-mouse in anime. Still unmatched.',tags:['Psychological','Iconic','Classic'],w:true},
+    {t:'Your Lie in April',m:'2014 · Music romance',d:'A boy who can no longer hear his own music. A girl who plays like she\'s running out of time. The ending earns its devastation.',tags:['Romance','Music','Heartbreaking'],w:true},
+    {t:'A Silent Voice',m:'2016 · Film',d:'Redemption without absolution. KyoAni\'s most human work — quiet, uncomfortable, and genuinely moving.',tags:['Film','Emotional','Tender'],w:true},
+    {t:'Demon Slayer',m:'2019 · Action',d:'The animation alone would justify watching. That it also has genuine emotional stakes makes it something else.',tags:['Action','Beautiful','Emotional'],w:true},
+    {t:'Fullmetal Alchemist: Brotherhood',m:'2009 · Epic',d:'Two brothers trying to undo an irreversible mistake. The most complete, satisfying story in anime.',tags:['Epic','Perfect','Must watch'],w:true},
+    {t:'One Piece (Live Action)',m:'2023 · Netflix',d:'Faithful to the spirit rather than the letter. The casting is almost impossibly good.',tags:['Live action','Netflix','Adventure'],w:true},
+    {t:'Violet Evergarden',m:'2018',d:'A former soldier learning to write letters for people who can\'t find the words. Each episode is a contained grief.',tags:['Beautiful','Emotional','Short arcs'],w:true},
+  ]},
+  {label:'Isekai — to explore next',items:[
+    {t:'Overlord',m:'2015',d:'A gamer\'s avatar becomes a real undead overlord. Darker and more strategic than it first appears.',tags:['Power fantasy','Dark','Strategy']},
+    {t:'That Time I Got Reincarnated as a Slime',m:'2018',d:'Reborn as the weakest creature with the most power. Warm, unhurried, and imaginative.',tags:['Cozy','World-building','Popular']},
+    {t:'Sword Art Online',m:'2012',d:'Players trapped in a game where death is real. The romance subplot is quietly lovely.',tags:['Romance','Game','Classic']},
+  ]},
+  {label:'Romance & Slice of Life — new picks',items:[
+    {t:'Toradora!',m:'2008',d:'Two people helping each other reach someone else — until they can\'t ignore what\'s right in front of them. The gold standard.',tags:['Romance','Classic','Earned']},
+    {t:'Fruits Basket',m:'2019',d:'A girl finds a family she wasn\'t looking for. The 2019 remake is patient and deeply emotional.',tags:['Healing','Romance','Beautiful']},
+    {t:'Nana',m:'2006',d:'Two women named Nana who become each other\'s home in Tokyo. Josei at its most raw and honest.',tags:['Josei','Friendship','Real']},
+  ]},
+  {label:'More thrillers she will love',items:[
+    {t:'Monster',m:'2004',d:'A doctor saves a boy who becomes a serial killer. Naoki Urasawa\'s slow, devastating masterpiece.',tags:['Slow burn','Dark','Masterpiece']},
+    {t:'Psycho-Pass',m:'2012',d:'A society where crime is predicted before it happens. Orwellian, beautifully designed, and genuinely tense.',tags:['Sci-fi','Thriller','Stylish']},
+    {t:'91 Days',m:'2016',d:'A boy who grows up to destroy the mafia that killed his family. Cold, precise, and perfectly paced.',tags:['Revenge','Short','Gripping']},
+  ]},
+  {label:'Long epics — worth starting',items:[
+    {t:'Jujutsu Kaisen',m:'2020',d:'A boy swallows a cursed finger and is pulled into a world of sorcerers and monsters. The fights are extraordinary.',tags:['Action','Popular','Stunning']},
+    {t:'Attack on Titan',m:'2013',d:'Humanity behind walls, fighting giants — until the story reveals what it\'s actually about. One of the greatest narrative arcs in anime.',tags:['Dark','Epic','Unmissable']},
+    {t:'Haikyuu!!',m:'2014',d:'A volleyball anime that has no right being this emotionally resonant. Everyone ends up loving it.',tags:['Sports','Feel-good','Beloved']},
+  ]},
+];
+
+// Music data with color schemes for procedural album art
+const musicSections=[
+  {
+    label:'Her picks',
+    tracks:[
+      {t:'Kahe Kahe',a:'The Yellow Diary',v:'indie folk',seed:1,scheme:'amber'},
+      {t:'Udd Chala',a:'Taba Chake',v:'indie',seed:7,scheme:'sage'},
+      {t:'Dil Behra',a:'The Yellow Diary',v:'indie folk',seed:3,scheme:'amber'},
+      {t:'Chasing',a:'The Local Train',v:'indie rock',seed:11,scheme:'slate'},
+      {t:'Sun Saawariya',a:'Yaani',v:'soft indie',seed:5,scheme:'rose'},
+    ]
+  },
+  {
+    label:'The Local Train',
+    tracks:[
+      {t:'Aaoge Tum Kabhi',a:'The Local Train',v:'indie rock',seed:13,scheme:'slate'},
+      {t:'Dil Mere',a:'The Local Train',v:'indie rock',seed:17,scheme:'slate'},
+      {t:'Khudi',a:'The Local Train',v:'indie rock',seed:19,scheme:'earth'},
+      {t:'Aalas Ka Pedh',a:'The Local Train',v:'indie folk',seed:23,scheme:'sage'},
+    ]
+  },
+  {
+    label:'The Yellow Diary',
+    tracks:[
+      {t:'Marz',a:'The Yellow Diary',v:'indie folk',seed:29,scheme:'amber'},
+      {t:'Roz Roz',a:'The Yellow Diary',v:'indie folk',seed:31,scheme:'amber'},
+      {t:'Mann',a:'The Yellow Diary',v:'indie folk',seed:37,scheme:'earth'},
+      {t:'Rab Raakha',a:'The Yellow Diary',v:'indie folk',seed:41,scheme:'rose'},
+    ]
+  },
+  {
+    label:'When Chai Met Toast',
+    tracks:[
+      {t:'Khoj (Passing By)',a:'When Chai Met Toast',v:'indie folk',seed:43,scheme:'sage'},
+      {t:'Firefly',a:'When Chai Met Toast',v:'indie folk',seed:47,scheme:'amber'},
+      {t:'Yellow Paper Daisy',a:'When Chai Met Toast',v:'indie folk',seed:53,scheme:'sage'},
+    ]
+  },
+  {
+    label:'Other indie artists — same mood',
+    tracks:[
+      {t:'Kasoor',a:'Prateek Kuhad',v:'indie folk',seed:59,scheme:'dusk'},
+      {t:'cold/mess',a:'Prateek Kuhad',v:'indie folk',seed:61,scheme:'dusk'},
+      {t:'Riha',a:'Anuv Jain',v:'indie folk',seed:67,scheme:'rose'},
+      {t:'Baarishein',a:'Anuv Jain',v:'indie folk',seed:71,scheme:'slate'},
+      {t:'Alag Aasmaan',a:'Anuv Jain',v:'indie folk',seed:73,scheme:'sage'},
+    ]
+  },
+];
+
+// ── RENDER ──
+function openOverlay(label,title,sub,desc,tags){
+  document.getElementById('ov-label').textContent=label||'';
+  document.getElementById('ov-title').textContent=title;
+  document.getElementById('ov-sub').textContent=sub;
+  document.getElementById('ov-desc').textContent=desc;
+  document.getElementById('ov-tags').innerHTML=tags.map(x=>`<span class="overlay-tag">${x}</span>`).join('');
+  document.getElementById('overlay').classList.add('open');
+  document.body.style.overflow='hidden';
+}
+function closeOverlay(){document.getElementById('overlay').classList.remove('open');document.body.style.overflow='';}
+function maybeClose(e){if(e.target.id==='overlay')closeOverlay();}
+
+// Mood
+const moodRow=document.getElementById('mood-row');
+moods.forEach((m,i)=>{
+  const btn=document.createElement('button');
+  btn.className='mood-tab'+(i===0?' active':'');
+  btn.textContent=m.label;
+  btn.onclick=()=>{
+    document.querySelectorAll('.mood-tab').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    renderMovies(moodData[m.id]);
+  };
+  moodRow.appendChild(btn);
+});
+
+function renderMovies(list){
+  const g=document.getElementById('mood-grid');g.innerHTML='';
+  list.forEach((m,i)=>{
+    const card=document.createElement('div');card.className='movie-card';
+    card.innerHTML=`<span class="movie-num">0${i+1}</span><div class="movie-title">${m.t}</div><div class="movie-year">${m.y}</div><span class="movie-tag">${m.tags[0]}</span>`;
+    card.onclick=()=>openOverlay('Film',m.t,m.y,m.d,m.tags);
+    g.appendChild(card);
+  });
+}
+renderMovies(moodData.romantic);
+
+// Featured
+document.getElementById('feat-card').onclick=()=>openOverlay('Her all-time favourite','The Proposal','2009 · Ryan Reynolds','Ryan Reynolds at his most disarming. A fake engagement that slowly, quietly becomes real. The kind of film you rewatch not for the plot, but for how it makes you feel.',['Ryan Reynolds','Sandra Bullock','Rom-com','Feel-good']);
+
+// Bollywood
+const bCont=document.getElementById('bwood-cont');
+bwoodSections.forEach(sec=>{
+  const lbl=document.createElement('div');lbl.className='sub-heading';
+  lbl.innerHTML=sec.label;
+  bCont.appendChild(lbl);
+  const grid=document.createElement('div');grid.className='movie-grid';
+  sec.items.forEach((m,i)=>{
+    const card=document.createElement('div');card.className='movie-card';
+    card.innerHTML=`<span class="movie-num">0${i+1}</span><div class="movie-title">${m.t}</div><div class="movie-year">${m.y}</div><span class="movie-tag">${m.tags[0]}</span>`;
+    card.onclick=()=>openOverlay('Film',m.t,m.y,m.d,m.tags);
+    grid.appendChild(card);
+  });
+  bCont.appendChild(grid);
+});
+
+// Anime
+const aCont=document.getElementById('anime-cont');
+animeSections.forEach(sec=>{
+  const lbl=document.createElement('div');lbl.className='sub-heading';lbl.textContent=sec.label;
+  aCont.appendChild(lbl);
+  const grid=document.createElement('div');grid.className='anime-grid';
+  sec.items.forEach(it=>{
+    const card=document.createElement('div');card.className='anime-card';
+    card.innerHTML=`${it.w?'<span class="anime-watched">Watched</span><br>':''}<div class="anime-title">${it.t}</div><div class="anime-meta">${it.m}</div><span class="anime-tag">${it.tags[0]}</span>`;
+    card.onclick=()=>openOverlay('Anime',it.t,it.m,it.d,it.tags);
+    grid.appendChild(card);
+  });
+  aCont.appendChild(grid);
+});
+
+// Music
+let playing=-1;
+const mCont=document.getElementById('music-cont');
+let globalTrackIdx=0;
+const allTracks=[];
+
+musicSections.forEach(sec=>{
+  const lbl=document.createElement('div');lbl.className='track-section-label';lbl.textContent=sec.label;
+  mCont.appendChild(lbl);
+  const list=document.createElement('div');list.className='track-list';
+  sec.tracks.forEach((tr,si)=>{
+    const idx=globalTrackIdx++;
+    allTracks.push({...tr,idx});
+    const row=document.createElement('div');row.className='track-row';row.id='tr-'+idx;
+    const art=document.createElement('div');art.className='album-art';
+    art.innerHTML=albumArt(tr.seed,tr.scheme);
+    row.innerHTML=`<span class="track-num">${si+1}</span>`;
+    row.appendChild(art);
+    const info=document.createElement('div');info.className='track-info';
+    info.innerHTML=`<div class="track-name">${tr.t}</div><div class="track-artist">${tr.a}</div>`;
+    row.appendChild(info);
+    const vibe=document.createElement('span');vibe.className='track-vibe';vibe.textContent=tr.v;
+    row.appendChild(vibe);
+    row.onclick=()=>{
+      if(playing>=0)document.getElementById('tr-'+playing)?.classList.remove('playing');
+      playing=idx;row.classList.add('playing');
+      const strip=document.getElementById('now-strip');strip.classList.add('show');
+      document.getElementById('now-title').textContent=tr.t+' — '+tr.a;
+      const pb=document.getElementById('prog-bar');
+      pb.style.transition='none';pb.style.width='0';
+      requestAnimationFrame(()=>requestAnimationFrame(()=>{pb.style.transition='width 22s linear';pb.style.width='100%'}));
+    };
+    list.appendChild(row);
+  });
+  mCont.appendChild(list);
+});
+
+// Shows data
+const showsSections=[
+  {label:'Comfort classics',items:[
+    {t:'The Office',y:'2005–2013 · US',d:'Nine seasons of the most achingly human comedy on television. Michael Scott is a man-child who somehow earns your tears by the finale. The Jim and Pam arc remains one of the best slow-burn romances in TV history.',tags:['Comedy','9 seasons','Steve Carell','Mockumentary']},
+    {t:'Modern Family',y:'2009–2020 · ABC',d:'Three families, three kinds of love, eleven years of warmth that never feels manufactured. Phil Dunphy alone is worth the watch.',tags:['Comedy','11 seasons','Family','Feel-good']},
+    {t:'Friends',y:'1994–2004 · NBC',d:'Six people in New York, figuring it out together. It invented the template that every ensemble comedy since has tried to copy — and none have quite matched.',tags:['Comedy','10 seasons','Classic','Iconic']},
+  ]},
+  {label:'Worth discovering',items:[
+    {t:'Schitt\'s Creek',y:'2015–2020',d:'A wealthy family loses everything and ends up in a town they once bought as a joke. It starts as satire and ends as one of television\'s warmest love stories.',tags:['Comedy','6 seasons','Eugene Levy','Heartfelt']},
+    {t:'Ted Lasso',y:'2020–2023 · Apple TV+',d:'An American football coach hired to manage a British soccer team he knows nothing about. Relentlessly kind in a way that should feel naive but doesn\'t.',tags:['Comedy','3 seasons','Apple TV+','Feel-good']},
+    {t:'New Girl',y:'2011–2018',d:'A girl moves in with three men after a bad breakup. The ensemble chemistry is effortless, and Nick Miller is one of the great sitcom characters.',tags:['Comedy','7 seasons','Zooey Deschanel','Easy watch']},
+    {t:'Brooklyn Nine-Nine',y:'2013–2021',d:'A police precinct comedy that never punches down. Andy Samberg and Andre Braugher play off each other beautifully for eight seasons.',tags:['Comedy','8 seasons','Andy Samberg','Warm']},
+    {t:'Gilmore Girls',y:'2000–2007',d:'A mother and daughter in a small Connecticut town, talking faster than anyone on television. The pop culture references alone make it worth it — but the relationship at the centre is what keeps you.',tags:['Drama-comedy','7 seasons','Amy Sherman-Palladino','Dialogue']},
+    {t:'Fleabag',y:'2016–2019 · BBC',d:'Two short seasons that feel like a complete life. Phoebe Waller-Bridge wrote and starred in what may be the most precise piece of television of the last decade.',tags:['Drama-comedy','2 seasons','Phoebe Waller-Bridge','Perfect']},
+  ]},
+];
+
+// Render shows
+const sCont=document.getElementById('shows-cont');
+document.getElementById('suits-card').onclick=()=>openOverlay('The highlight','Suits','2011–2019 · USA Network','A college dropout pretending to be a Harvard lawyer, and the shark of a mentor who lets him. What starts as a procedural slowly becomes a study in loyalty, ambition, and the cost of reinventing yourself. Harvey Specter is one of television\'s great characters — not because he wins, but because of how much it costs him to.',['Legal drama','9 seasons','Gabriel Macht','Meghan Markle']);
+
+showsSections.forEach(sec=>{
+  const lbl=document.createElement('div');lbl.className='sub-heading';lbl.textContent=sec.label;
+  sCont.appendChild(lbl);
+  const grid=document.createElement('div');grid.className='movie-grid';
+  sec.items.forEach((s,i)=>{
+    const card=document.createElement('div');card.className='movie-card';
+    card.innerHTML=`<span class="movie-num">0${i+1}</span><div class="movie-title">${s.t}</div><div class="movie-year">${s.y}</div><span class="movie-tag">${s.tags[0]}</span>`;
+    card.onclick=()=>openOverlay('Show',s.t,s.y,s.d,s.tags);
+    grid.appendChild(card);
+  });
+  sCont.appendChild(grid);
+});
+
+// Particles
+const pCont=document.getElementById('particles');
+for(let i=0;i<28;i++){
+  const p=document.createElement('div');
+  p.className='particle';
+  p.style.cssText=`left:${Math.random()*100}%;--dur:${6+Math.random()*10}s;--del:${Math.random()*8}s;--drift:${(Math.random()-.5)*80}px;width:${Math.random()<.3?2:1}px;height:${Math.random()<.3?2:1}px;opacity:${.3+Math.random()*.7}`;
+  pCont.appendChild(p);
+}
+
+// Nav
+function show(name,btn){
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('panel-'+name).classList.add('active');
+  btn.classList.add('active');
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+// Splash
+function enterSite(){
+  const splash=document.getElementById('splash');
+  // Scale up name gently before fade
+  const nameWrap=document.querySelector('.splash-name-wrap');
+  nameWrap.style.transition='transform 1s ease, opacity .8s ease';
+  nameWrap.style.transform='scale(1.06)';
+  nameWrap.style.opacity='0';
+  setTimeout(()=>{
+    splash.classList.add('hide');
+    setTimeout(()=>{
+      splash.style.display='none';
+      document.getElementById('main').style.opacity='1';
+    },1200);
+  },400);
+}
+</script>
+</body>
+</html>
